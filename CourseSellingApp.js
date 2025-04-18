@@ -3,6 +3,9 @@
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 app.use(express.json());
 
@@ -10,14 +13,15 @@ let ADMINS = [];
 let USERS = [];
 let COURSES = [];
 let PURCHASEDCOURSES = [];
+const adminSecretKey = process.env.adminSecretKey;
+const userSecretKey = process.env.userSecretKey;
 
 // Admin routes
 app.post('/admin/signup', (req, res) => {
   // logic to sign up admin
   var payload = req.body;
-  var secretKey = "admin123";
   let time = {expiresIn : '1h'};
-  let token = jwt.sign(payload, secretKey, time);
+  let token = jwt.sign(payload, adminSecretKey, time);
   for (var j = 0; j < ADMINS.length; j++) {
     if (payload.username == ADMINS[j].username) {
       return res.status(400).send("username already exists");
@@ -33,9 +37,8 @@ app.post('/admin/login', (req, res) => {
   for (var j = 0; j < ADMINS.length; j++) {
     if (username == ADMINS[j].username) {
       var payload = {username};
-      const secretKey = "admin123";
       let time = {expiresIn : '1h'};
-      var token = jwt.sign(payload,secretKey,time);
+      var token = jwt.sign(payload,adminSecretKey,time);
       res.status(200).send({ message: 'Logged in successfully', token: token })
     }else{
       res.status(401).send("invalid username or password");
@@ -47,7 +50,7 @@ function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, 'admin123', (err, user) => {
+    jwt.verify(token, adminSecretKey, (err, user) => {
       if (err) {
         return res.status(403).send('Invalid token');
       }
@@ -108,7 +111,7 @@ function verifyToken1(req, res, next) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, 'user123', (err, user) => {
+    jwt.verify(token, userSecretKey, (err, user) => {
       if (err) {
         return res.status(403).send('Invalid token');
       }
@@ -124,9 +127,8 @@ function verifyToken1(req, res, next) {
 app.post('/users/signup', (req, res) => {
   // logic to sign up user
   var payload = req.body;
-  var secretKey = "user123";
   let time = {expiresIn : '1h'};
-  let token = jwt.sign(payload, secretKey, time);
+  let token = jwt.sign(payload, userSecretKey, time);
   for (var j = 0; j < USERS.length; j++) {
     if (payload.username == USERS[j].username) {
       return res.status(400).send("username already exists");
@@ -142,9 +144,8 @@ app.post('/users/login', (req, res) => {
   for (var j = 0; j < USERS.length; j++) {
     if (username == USERS[j].username) {
       var payload = {username};
-      const secretKey = "user123";
       let time = {expiresIn : '1h'};
-      var token = jwt.sign(payload,secretKey,time);
+      var token = jwt.sign(payload,userSecretKey,time);
       res.status(200).send({ message: 'Logged in successfully', token: token })
     }else{
       res.status(401).send("invalid username or password");

@@ -3,3 +3,4 @@
 .gitignore
 *.md
 courseSellingApp.solution.js
+.env
